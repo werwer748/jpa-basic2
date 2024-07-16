@@ -1,18 +1,10 @@
-package hellojpa;
+package jpql;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-import org.hibernate.Hibernate;
 
-import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 public class JpaMain {
-
     public static void main(String[] args) {
 
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("hello");
@@ -22,16 +14,28 @@ public class JpaMain {
         tx.begin();
 
         try {
-            //? JDBC, Spring JDBC Template
+            //? JPQL
             Member member = new Member();
             member.setUsername("member1");
+            member.setAge(10);
             em.persist(member);
 
-            // flush -> commit, query 시점에 flush 작동
+            em.flush();
+            em.clear();
 
-            List<Member> resultList = em.createNativeQuery(
-                    "SELECT * FROM MEMBER WHERE member_id = 1 GROUP BY member_id"
-            ).getResultList();
+            /**
+             * 스칼라 타입 프로젝션 - new 명령어(dto)로 조회
+             * 단순 값을 DTO로 바로 조회
+             * 패키지명을 포함한 전체 클래스 명 입력
+             * 순서와 타입이 일치하는 생성자 필요
+             */
+            List<MemberDto> resultList = em.createQuery("select new jpql.MemberDto(m.username, m.age) from Member m", MemberDto.class)
+                    .getResultList();
+
+            for (MemberDto memberDto : resultList) {
+                System.out.println("memberDto = " + memberDto.getUsername());
+                System.out.println("memberDto = " + memberDto.getAge());
+            }
 
             System.out.println("===================");
             tx.commit();
@@ -46,4 +50,5 @@ public class JpaMain {
 
         emf.close();
     }
+
 }
