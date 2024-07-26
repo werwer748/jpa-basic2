@@ -6,7 +6,8 @@ import jakarta.persistence.*;
 @Table(name = "ORDERS")
 public class Order {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
     private int orderAmount;
 

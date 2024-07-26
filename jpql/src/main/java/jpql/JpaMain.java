@@ -14,28 +14,41 @@ public class JpaMain {
         tx.begin();
 
         try {
-            //? JPQL
+            //? jpql case
+            Team team = new Team();
+            team.setName("teamA");
+            em.persist(team);
+
             Member member = new Member();
-            member.setUsername("member1");
+            member.setUsername("teamA");
             member.setAge(10);
+            member.changeTeam(team);
+            member.setType(MemberType.ADMIN);
             em.persist(member);
+
+            Member member2 = new Member();
+            member2.setUsername("관리자");
+            member2.setAge(20);
+            member2.changeTeam(team);
+            member2.setType(MemberType.ADMIN);
+            em.persist(member2);
 
             em.flush();
             em.clear();
 
             /**
-             * 스칼라 타입 프로젝션 - new 명령어(dto)로 조회
-             * 단순 값을 DTO로 바로 조회
-             * 패키지명을 포함한 전체 클래스 명 입력
-             * 순서와 타입이 일치하는 생성자 필요
+             * 사용자 정의 함수 호출
              */
-            List<MemberDto> resultList = em.createQuery("select new jpql.MemberDto(m.username, m.age) from Member m", MemberDto.class)
+//            String query = "select function('group_concat', m.username) " +
+            String query = "select group_concat(m.username) " + // 하이버네이트에서 이렇게 쓸 수 있도록 지원해 줌
+                    "from Member m";
+            List<String> result = em.createQuery(query, String.class)
                     .getResultList();
 
-            for (MemberDto memberDto : resultList) {
-                System.out.println("memberDto = " + memberDto.getUsername());
-                System.out.println("memberDto = " + memberDto.getAge());
+            for (String s : result) {
+                System.out.println("s = " + s);
             }
+
 
             System.out.println("===================");
             tx.commit();
