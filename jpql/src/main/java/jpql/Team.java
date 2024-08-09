@@ -1,6 +1,7 @@
 package jpql;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,8 @@ public class Team {
     private Long id;
     private String name;
 
+    //? 엔티티 컬렉션필드에 사용하면 단일 적용
+//    @BatchSize(size = 100) // 발생한 쿼리의 in에 ?는 사이즈 수만큼
     @OneToMany(mappedBy = "team")
     private List<Member> members = new ArrayList<>();
 
